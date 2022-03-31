@@ -188,7 +188,11 @@ This will work:
 git commit updates
 
 
-using heroku:
+create for heroku:
 	heroku login
 	heroku create
 	git push heroku main
+	
+seed db on heroku:
+	heroku run rails db:migrate
+	heroku run rails db:seed
