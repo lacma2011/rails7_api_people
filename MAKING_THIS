@@ -30,17 +30,48 @@ sudo chown -R jj .gitignore
 sudo chown -R jj .ruby-version
 
 
+
+Modify Gemfile
+--------------
+
+I. disable sqlite3 at top since it will appear again in another group, and only that group:
+
+        #gem 'sqlite3', "~> 1.4" 
+
+        
+II. add to this group:
+
+(begin text)
+group :development, :test do
+  gem 'sqlite3', '1.4.2'
+ 
+  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem 
+  gem "debug", platforms: %i[ mri mingw x64_mingw ]
+
+  # use ???
+  #gem 'byebug',  '11.1.3', platforms: [:mri, :mingw, :x64_mingw]
+end
+(end text)
+
+III. add production group:
+
+(begin text)
+# I use heroku
+group :production do
+  gem 'pg', '1.2.3'
+end
+(end text)
+
+
 create Dockerfile, build it:
 
 
      	docker build -t app_api .
 
 
-Dockerfile should have the following:
+Important that Dockerfile should have the following:
     	      RUN bundle config set --local without 'production'
 	      RUN bundle install    	      
-
-
 
 
 
@@ -72,4 +103,38 @@ modify .gitignore for emacs:
 git add files, commit
 
    
-   
+in container, create model for 'person':  
+
+	rails generate model person name:string email:string username:string password:string city:string
+
+
+
+
+
+set perms (outside container):
+sudo chmod 775 app/models/person.rb 
+sudo chmod -R 775 db/migrate
+sudo chmod -R 775 test/fixtures/people.yml 
+sudo chmod -R 775 test/models/person_test.rb 
+sudo chown jj test/models/person_test.rb
+sudo chown jj test/fixtures/people.yml 
+sudo chown -R jj db/migrate
+sudo chown jj app/models/person.rb
+
+
+
+add to db/seeds.rb:
+
+Person.create!(name:'Jess', email:'jess@place.com', username:'jess', password:'jess', city:'Los Angeles')
+
+
+
+
+run (in container):
+	rails db:migrate
+	rails db:seed
+	
+	
+
+
+

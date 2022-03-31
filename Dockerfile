@@ -10,6 +10,7 @@ RUN bundle install
 
 
 
+
 # For specific apps, mine that I'm working on now I will use webpacker
 RUN gem install rails
 
