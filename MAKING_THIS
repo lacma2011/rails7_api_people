@@ -1,0 +1,75 @@
+references used to build this:
+
+	Rails API setup: https://howtojsonapi.com/rails.html
+	CORS setup for Rails:  https://www.stackhawk.com/blog/rails-cors-guide/
+	jquery API client: https://github.com/jpillora/jquery.rest
+	
+
+docker pull library/ruby
+
+
+docker run --rm -v ${PWD}:/usr/src -w /usr/src -ti ruby /bin/bash
+
+gem install rails
+
+rails new --api .
+
+
+
+set perms for new files (in host, not docker, in app folder) : 
+
+sudo chmod -R  775 *
+sudo chown -R jj *
+sudo chmod -R  775 .git
+sudo chmod -R  775 .gitattributes 
+sudo chmod -R  775 .gitignore
+sudo chmod -R  775 .ruby-version 
+sudo chown -R jj .git
+sudo chown -R jj .gitattributes
+sudo chown -R jj .gitignore
+sudo chown -R jj .ruby-version
+
+
+create Dockerfile, build it:
+
+
+     	docker build -t app_api .
+
+
+Dockerfile should have the following:
+    	      RUN bundle config set --local without 'production'
+	      RUN bundle install    	      
+
+
+
+
+
+You can now start your container with this (assume project named "my_project"):
+
+	   docker run \
+	   -p 3000:3000 \
+	   -v $(pwd):/usr/src/app/ \
+	   app_api
+
+
+
+
+to login to container:
+
+   docker exec -it $(docker ps -q) /bin/bash
+
+
+
+to remove all containers (check theyve expired first):
+   docker rm -f $(docker ps -a -q)
+   
+   
+modify .gitignore for emacs:
+#emacs
+*~
+.*~
+
+git add files, commit
+
+   
+   
