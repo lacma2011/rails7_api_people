@@ -126,6 +126,7 @@ sudo chown jj app/models/person.rb
 add to db/seeds.rb:
 
 Person.create!(name:'Jess', email:'jess@place.com', username:'jess', password:'jess', city:'Los Angeles')
+Person.create!(name:'Amy', email:'amy@place.com', username:'amy', password:'amy', city:'New York')
 
 
 
@@ -134,7 +135,60 @@ run (in container):
 	rails db:migrate
 	rails db:seed
 	
+
+
+add to Gemfile:
+	gem 'jsonapi-resources'
+
+
+	
+build docker again and run container, after removing expired ones:
+	docker rm -f $(docker ps -a -q)
+	docker build -t app_api .
+	docker run -p 3000:3000 -v $(pwd):/usr/src/app/ app_api
+
+
+login to docker again:
+	docker exec -it $(docker ps -q) /bin/bash
+
+git check-in again (in host)
+	
+create person json resource (in container):
+	rails g jsonapi:resource person
+
+
+set perms (in host):
+	sudo chmod -R 775 app/resources/
+	sudo chown -R jj app/resources/
+
+
+modify app/resources/person_resource.rb
+	attributes :name, :email, :username, :password, :city
+	
+create controller for it:
+	rails g jsonapi:controller person
+	
+set perms (in host):
+	sudo chmod 775 app/controllers/people_controller.rb
+	sudo chown jj app/controllers/people_controller.rb
+	
+add to the new controller class:
+	skip_before_action :verify_authenticity_token
+	
+add to routes.db in the "do" block:
+	jsonapi_resources :people
+	
+This will work:
+
+	http://0.0.0.0:3000/people
+	http://0.0.0.0:3000/people/1
+	http://0.0.0.0:3000/people/2
 	
 
+git commit updates
 
 
+using heroku:
+	heroku login
+	heroku create
+	git push heroku main
